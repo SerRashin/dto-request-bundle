@@ -12,6 +12,5 @@ class MapToArrayOf
     public function __construct(
         public string $className,
     ) {
-
     }
 }

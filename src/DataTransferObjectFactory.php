@@ -16,10 +16,13 @@ use Ser\DTORequestBundle\Reflection\ReflectedProperty;
  */
 class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
 {
-    private array $scalarTypes = ["int" => true, "bool"=> true, "float"=> true, "string"=> true, "double"=> true];
-    public function __construct(
-    ) {
-    }
+    private array $scalarTypes = [
+        "int" => true,
+        "bool" => true,
+        "float" => true,
+        "string" => true,
+        "double" => true,
+    ];
 
     /**
      * @inheritDoc
@@ -141,7 +144,7 @@ class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
      */
     private function getCachedDto(string $className): ReflectedClass
     {
-        return DTOCache::resolve($className, function(string $className) {
+        return DTOCache::resolve($className, function (string $className) {
             return new ReflectedClass($className);
         });
     }

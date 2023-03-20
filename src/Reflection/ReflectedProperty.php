@@ -73,7 +73,8 @@ final class ReflectedProperty
      *
      * @param ReflectionProperty $property
      */
-    public function __construct(ReflectionProperty $property) {
+    public function __construct(ReflectionProperty $property)
+    {
         $this->property = $property;
         $this->hasType = $property->hasType();
         $this->hasDefaultValue = $property->isDefault();
@@ -261,8 +262,9 @@ final class ReflectedProperty
         foreach ($filters as $filter) {
             $attributes = $property->getAttributes($filter);
 
-            foreach ($attributes as $attribute)
+            foreach ($attributes as $attribute) {
                 yield $attribute;
+            }
         }
     }
 
@@ -283,12 +285,12 @@ final class ReflectedProperty
             return [];
         }
 
-        switch(true) {
+        switch (true) {
             case $refType instanceof ReflectionNamedType:
                 $types[] = $refType->getName();
                 break;
             case $refType instanceof ReflectionUnionType:
-                foreach ($refType->getTypes() as $type){
+                foreach ($refType->getTypes() as $type) {
                     $types[] = $type->getName();
                 }
                 break;

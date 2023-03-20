@@ -17,8 +17,11 @@ class RequestToDtoObjectResolver implements ValueResolverInterface
     public function __construct(
         private DataTransferObjectFactoryInterface $dataTransferObjectFactory,
     ) {
-
     }
+
+    /**
+     * @inheritDoc
+     */
     public function resolve(Request $request, ArgumentMetadata $argument): array
     {
         $argumentType = $argument->getType();
@@ -33,7 +36,7 @@ class RequestToDtoObjectResolver implements ValueResolverInterface
             return [];
         }
 
-        if(!$this->dataTransferObjectFactory->supports($argumentType)) {
+        if (!$this->dataTransferObjectFactory->supports($argumentType)) {
             return [];
         }
 

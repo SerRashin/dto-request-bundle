@@ -40,7 +40,8 @@ final class ReflectedClass
      *
      * @throws ReflectionException
      */
-    public function __construct(string $className) {
+    public function __construct(string $className)
+    {
         $refClass = new ReflectionClass($className);
 
         foreach ($refClass->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {

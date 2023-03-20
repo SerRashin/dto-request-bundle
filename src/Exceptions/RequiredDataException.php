@@ -11,7 +11,7 @@ class RequiredDataException extends Exception
     public function __construct(string $property)
     {
         parent::__construct(
-            "Not found required property `{$property}`"
+            "Not found required property \"$property\""
         );
     }
 }
