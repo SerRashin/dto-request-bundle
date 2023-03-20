@@ -109,12 +109,16 @@ class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
 
         if (!empty($properties)) {
             foreach ($properties as $field => $property) {
-                if (isset($existsKeys[$field]) && !isset($constructorKeys[$field])) {
-                    if ($property->isReadOnly()) {
-                        $property->setValue($object, $data[$field]);
-                    } else {
-                        $object->{$field} = $data[$field];
-                    }
+                if (isset($constructorKeys[$field])) {
+                    continue;
+                }
+
+                $value = isset($existsKeys[$field]) === true ? $data[$field] : $property->getDefaultValue();
+
+                if ($property->isReadOnly()) {
+                    $property->setValue($object, $value);
+                } else {
+                    $object->{$field} = $value;
                 }
             }
         }

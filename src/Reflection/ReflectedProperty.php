@@ -64,8 +64,19 @@ final class ReflectedProperty
      */
     private bool $isMixed;
 
+    /**
+     * @var bool
+     */
     private bool $isReadOnly;
 
+    /**
+     * @var mixed
+     */
+    private mixed $defaultValue;
+
+    /**
+     * @var ReflectionProperty
+     */
     private ReflectionProperty $property;
 
     /**
@@ -92,6 +103,8 @@ final class ReflectedProperty
         if ($this->type != null && class_exists($this->type)) {
             $this->isTypeClassName = true;
         }
+
+        $this->resolveDefaultValue($property);
 
         $this->resolveAttributes($property);
     }
@@ -225,6 +238,18 @@ final class ReflectedProperty
     }
 
     /**
+     * Get default value for property
+     *
+     * Returns default value if set, or value from type.
+     *
+     * @return mixed
+     */
+    public function getDefaultValue(): mixed
+    {
+        return $this->defaultValue;
+    }
+
+    /**
      * Set property
      *
      * @param $objectOrValue
@@ -249,6 +274,14 @@ final class ReflectedProperty
     private function resolveIsMixed(ReflectionProperty $property): bool
     {
         return $property->hasType() === false;
+    }
+
+    private function resolveDefaultValue(ReflectionProperty $property)
+    {
+        $this->defaultValue = $property->getDefaultValue();
+        if ($this->defaultValue === null && $this->isNullable === false) {
+            settype($this->defaultValue, $this->type);
+        }
     }
 
     /**
