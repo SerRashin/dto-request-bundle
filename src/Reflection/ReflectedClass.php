@@ -40,7 +40,8 @@ final class ReflectedClass
      *
      * @throws ReflectionException
      */
-    public function __construct(string $className) {
+    public function __construct(string $className)
+    {
         $refClass = new ReflectionClass($className);
 
         foreach ($refClass->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
@@ -50,8 +51,15 @@ final class ReflectedClass
 
             $field = $property->getName();
 
-            $this->properties[$field] = new ReflectedProperty($property);
-            $this->propertiesValues[$field] = null;
+            $refProperty =  new ReflectedProperty($property);
+
+            $this->properties[$field] = $refProperty;
+
+            if ($refProperty->isNullable()) {
+                $this->propertiesValues[$field] = null;
+            } else {
+                $this->propertiesValues[$field] = filter_var($field);
+            }
         }
 
         $constructor = $refClass->getConstructor();

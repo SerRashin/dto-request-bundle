@@ -16,10 +16,13 @@ use Ser\DTORequestBundle\Reflection\ReflectedProperty;
  */
 class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
 {
-    private array $scalarTypes = ["int" => true, "bool"=> true, "float"=> true, "string"=> true, "double"=> true];
-    public function __construct(
-    ) {
-    }
+    private array $scalarTypes = [
+        "int" => true,
+        "bool" => true,
+        "float" => true,
+        "string" => true,
+        "double" => true,
+    ];
 
     /**
      * @inheritDoc
@@ -106,12 +109,16 @@ class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
 
         if (!empty($properties)) {
             foreach ($properties as $field => $property) {
-                if (isset($existsKeys[$field]) && !isset($constructorKeys[$field])) {
-                    if ($property->isReadOnly()) {
-                        $property->setValue($object, $data[$field]);
-                    } else {
-                        $object->{$field} = $data[$field];
-                    }
+                if (isset($constructorKeys[$field])) {
+                    continue;
+                }
+
+                $value = isset($existsKeys[$field]) === true ? $data[$field] : $property->getDefaultValue();
+
+                if ($property->isReadOnly()) {
+                    $property->setValue($object, $value);
+                } else {
+                    $object->{$field} = $value;
                 }
             }
         }
@@ -141,7 +148,7 @@ class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
      */
     private function getCachedDto(string $className): ReflectedClass
     {
-        return DTOCache::resolve($className, function(string $className) {
+        return DTOCache::resolve($className, function (string $className) {
             return new ReflectedClass($className);
         });
     }

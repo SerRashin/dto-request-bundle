@@ -7,7 +7,6 @@ namespace Ser\DTORequestBundle;
 use Closure;
 use Ser\DTORequestBundle\Reflection\ReflectedClass;
 
-
 class DTOCache
 {
     private static array $cache = [];

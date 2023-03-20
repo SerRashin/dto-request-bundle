@@ -64,8 +64,19 @@ final class ReflectedProperty
      */
     private bool $isMixed;
 
+    /**
+     * @var bool
+     */
     private bool $isReadOnly;
 
+    /**
+     * @var mixed
+     */
+    private mixed $defaultValue;
+
+    /**
+     * @var ReflectionProperty
+     */
     private ReflectionProperty $property;
 
     /**
@@ -73,7 +84,8 @@ final class ReflectedProperty
      *
      * @param ReflectionProperty $property
      */
-    public function __construct(ReflectionProperty $property) {
+    public function __construct(ReflectionProperty $property)
+    {
         $this->property = $property;
         $this->hasType = $property->hasType();
         $this->hasDefaultValue = $property->isDefault();
@@ -91,6 +103,8 @@ final class ReflectedProperty
         if ($this->type != null && class_exists($this->type)) {
             $this->isTypeClassName = true;
         }
+
+        $this->resolveDefaultValue($property);
 
         $this->resolveAttributes($property);
     }
@@ -224,6 +238,18 @@ final class ReflectedProperty
     }
 
     /**
+     * Get default value for property
+     *
+     * Returns default value if set, or value from type.
+     *
+     * @return mixed
+     */
+    public function getDefaultValue(): mixed
+    {
+        return $this->defaultValue;
+    }
+
+    /**
      * Set property
      *
      * @param $objectOrValue
@@ -250,6 +276,14 @@ final class ReflectedProperty
         return $property->hasType() === false;
     }
 
+    private function resolveDefaultValue(ReflectionProperty $property)
+    {
+        $this->defaultValue = $property->getDefaultValue();
+        if ($this->defaultValue === null && $this->isNullable === false) {
+            settype($this->defaultValue, $this->type);
+        }
+    }
+
     /**
      * @param ReflectionProperty $property
      * @param array $filters
@@ -261,8 +295,9 @@ final class ReflectedProperty
         foreach ($filters as $filter) {
             $attributes = $property->getAttributes($filter);
 
-            foreach ($attributes as $attribute)
+            foreach ($attributes as $attribute) {
                 yield $attribute;
+            }
         }
     }
 
@@ -283,12 +318,12 @@ final class ReflectedProperty
             return [];
         }
 
-        switch(true) {
+        switch (true) {
             case $refType instanceof ReflectionNamedType:
                 $types[] = $refType->getName();
                 break;
             case $refType instanceof ReflectionUnionType:
-                foreach ($refType->getTypes() as $type){
+                foreach ($refType->getTypes() as $type) {
                     $types[] = $type->getName();
                 }
                 break;

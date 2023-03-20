@@ -7,6 +7,9 @@ namespace Ser\DTORequestBundle;
 use ReflectionException;
 use Ser\DTORequestBundle\Exceptions\RequiredDataException;
 
+/**
+ * Interface for DTO factories
+ */
 interface DataTransferObjectFactoryInterface
 {
     /**
