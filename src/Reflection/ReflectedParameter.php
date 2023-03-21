@@ -16,7 +16,7 @@ final class ReflectedParameter
     /**
      * @var string|null
      */
-    private ?string $type;
+    private ?string $type = null;
 
     /**
      * @var string[]
