@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Ser\DTORequestBundle;
 
 use ReflectionException;
-use Ser\DTORequestBundle\Exceptions\RequiredDataException;
+use Ser\DTORequestBundle\Exceptions\NullablePropertyException;
+use Ser\DTORequestBundle\Exceptions\RequiredPropertyException;
 
 /**
  * Interface for DTO factories
@@ -20,8 +21,9 @@ interface DataTransferObjectFactoryInterface
      *
      * @return object
      *
-     * @throws RequiredDataException
+     * @throws RequiredPropertyException
      * @throws ReflectionException
+     * @throws NullablePropertyException
      */
     public function create(array $data, string $className): object;
 

@@ -6,12 +6,12 @@ namespace Ser\DTORequestBundle\Exceptions;
 
 use Exception;
 
-class RequiredDataException extends Exception
+class RequiredPropertyException extends Exception
 {
     public function __construct(string $property)
     {
         parent::__construct(
-            "Not found required property \"$property\""
+            "Request not contains required property `$property`"
         );
     }
 }
