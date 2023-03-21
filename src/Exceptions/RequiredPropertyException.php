@@ -6,7 +6,7 @@ namespace Ser\DTORequestBundle\Exceptions;
 
 use Exception;
 
-class RequiredDataException extends Exception
+class RequiredPropertyException extends Exception
 {
     public function __construct(string $property)
     {

@@ -8,7 +8,7 @@ use ReflectionException;
 use Ser\DTORequestBundle\Attributes\MapTo;
 use Ser\DTORequestBundle\Attributes\MapToArrayOf;
 use Ser\DTORequestBundle\Exceptions\NullablePropertyException;
-use Ser\DTORequestBundle\Exceptions\RequiredDataException;
+use Ser\DTORequestBundle\Exceptions\RequiredPropertyException;
 use Ser\DTORequestBundle\Reflection\ReflectedClass;
 use Ser\DTORequestBundle\Reflection\ReflectedProperty;
 
@@ -97,7 +97,7 @@ class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
         if (!empty($parameters)) {
             foreach ($parameters as $field => $property) {
                 if (!isset($data[$field])) {
-                    throw new RequiredDataException($field);
+                    throw new RequiredPropertyException($field);
                 }
                 $constructorKeys[$field] = true;
                 $constructorArguments[] = $data[$field];
