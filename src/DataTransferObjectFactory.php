@@ -7,6 +7,7 @@ namespace Ser\DTORequestBundle;
 use ReflectionException;
 use Ser\DTORequestBundle\Attributes\MapTo;
 use Ser\DTORequestBundle\Attributes\MapToArrayOf;
+use Ser\DTORequestBundle\Exceptions\NullablePropertyException;
 use Ser\DTORequestBundle\Exceptions\RequiredDataException;
 use Ser\DTORequestBundle\Reflection\ReflectedClass;
 use Ser\DTORequestBundle\Reflection\ReflectedProperty;
@@ -16,14 +17,6 @@ use Ser\DTORequestBundle\Reflection\ReflectedProperty;
  */
 class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
 {
-    private array $scalarTypes = [
-        "int" => true,
-        "bool" => true,
-        "float" => true,
-        "string" => true,
-        "double" => true,
-    ];
-
     /**
      * @inheritDoc
      */
@@ -46,7 +39,7 @@ class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
             $isMixed = $property->isMixed();
             $value = $data[$field];
 
-            if (is_scalar($value) && (isset($this->scalarTypes[$type]) || $isMixed)) {
+            if (is_scalar($value) && (isset(ReflectedProperty::SCALAR_TYPES[$type]) || $isMixed)) {
                 continue;
             }
 
@@ -85,6 +78,12 @@ class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
             }
 
             if ($property->isTypeClassName() === true) {
+                if ($value === null) {
+                    $data[$field] = null;
+
+                    continue;
+                }
+
                 if (!$isValueArray) {
                     $data[$field] = new $type($value);
                 } else {
@@ -114,6 +113,10 @@ class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
                 }
 
                 $value = isset($existsKeys[$field]) === true ? $data[$field] : $property->getDefaultValue();
+
+                if (!$property->isNullable() && $value === null) {
+                    throw new NullablePropertyException($field, $type);
+                }
 
                 if ($property->isReadOnly()) {
                     $property->setValue($object, $value);

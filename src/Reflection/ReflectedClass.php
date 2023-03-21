@@ -16,7 +16,7 @@ final class ReflectedClass
     /**
      * @var ReflectedProperty[]
      */
-    private array $properties;
+    private array $properties = [];
 
     /**
      * @var ReflectedParameter[]

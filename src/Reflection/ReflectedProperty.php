@@ -19,6 +19,14 @@ final class ReflectedProperty
 {
     public const SUPPORTS_ATTRIBUTES = [MapTo::class, MapToArrayOf::class];
 
+    public const SCALAR_TYPES = [
+        "int"    => true,
+        "bool"   => true,
+        "float"  => true,
+        "string" => true,
+        "double" => true,
+    ];
+
     /**
      * @var bool
      */
@@ -279,7 +287,7 @@ final class ReflectedProperty
     private function resolveDefaultValue(ReflectionProperty $property)
     {
         $this->defaultValue = $property->getDefaultValue();
-        if ($this->defaultValue === null && $this->isNullable === false) {
+        if ($this->defaultValue === null && $this->isNullable === false && isset(self::SCALAR_TYPES[$this->type])) {
             settype($this->defaultValue, $this->type);
         }
     }
