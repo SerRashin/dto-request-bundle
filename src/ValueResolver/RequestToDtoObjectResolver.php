@@ -6,6 +6,7 @@ namespace Ser\DTORequestBundle\ValueResolver;
 
 use Exception;
 use Ser\DTORequestBundle\DataTransferObjectFactoryInterface;
+use Ser\DTORequestBundle\Exceptions\NullablePropertyException;
 use Ser\DTORequestBundle\Exceptions\RequiredDataException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
@@ -42,7 +43,7 @@ class RequestToDtoObjectResolver implements ValueResolverInterface
 
         try {
             $object = $this->dataTransferObjectFactory->create($requestData, $argumentType);
-        } catch (RequiredDataException $e) {
+        } catch (NullablePropertyException | RequiredDataException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e, $e->getCode());
         } catch (Exception $e) {
             throw new BadRequestHttpException('Invalid request is passed', $e, $e->getCode());
