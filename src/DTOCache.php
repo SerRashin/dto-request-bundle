@@ -11,6 +11,14 @@ class DTOCache
 {
     private static array $cache = [];
 
+    /**
+     * Returns cached object
+     *
+     * @param string $class
+     * @param Closure $closure
+     *
+     * @return ReflectedClass
+     */
     public static function resolve(string $class, Closure $closure): ReflectedClass
     {
         if (!isset(self::$cache[$class])) {

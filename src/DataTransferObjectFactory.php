@@ -115,7 +115,7 @@ class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
                 $value = isset($existsKeys[$field]) === true ? $data[$field] : $property->getDefaultValue();
 
                 if (!$property->isNullable() && $value === null) {
-                    throw new NullablePropertyException($field, $type);
+                    throw new NullablePropertyException($field, $property->getType());
                 }
 
                 if ($property->isReadOnly()) {
@@ -145,6 +145,7 @@ class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
 
     /**
      * @param string $className
+     *
      * @return ReflectedClass
      *
      * @throws ReflectionException
