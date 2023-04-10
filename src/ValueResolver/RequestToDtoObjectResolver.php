@@ -31,6 +31,10 @@ class RequestToDtoObjectResolver implements ValueResolverInterface
             return [];
         }
 
+        if ($request->getContent() === '') {
+            return [];
+        }
+
         $requestData = $request->toArray();
 
         if (count($requestData) === 0) {
