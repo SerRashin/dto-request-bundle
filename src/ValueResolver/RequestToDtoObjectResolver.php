@@ -6,8 +6,6 @@ namespace Ser\DtoRequestBundle\ValueResolver;
 
 use Exception;
 use Ser\DtoRequestBundle\DataTransferObjectFactoryInterface;
-use Ser\DtoRequestBundle\Exceptions\NullablePropertyException;
-use Ser\DtoRequestBundle\Exceptions\RequiredPropertyException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
