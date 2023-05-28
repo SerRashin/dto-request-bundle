@@ -2,30 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Ser\DTORequestBundle\Reflection;
+namespace Ser\DtoRequestBundle\Reflection;
 
 use ReflectionAttribute;
 use ReflectionNamedType;
 use ReflectionProperty;
 use ReflectionType;
 use ReflectionUnionType;
-use Ser\DTORequestBundle\Attributes\MapTo;
-use Ser\DTORequestBundle\Attributes\MapToArrayOf;
 
 /**
  * Reflection property from class
  */
-final class ReflectedProperty
+final class ReflectedProperty implements PropertyInterface
 {
-    public const SUPPORTS_ATTRIBUTES = [MapTo::class, MapToArrayOf::class];
-
-    public const SCALAR_TYPES = [
-        "int"    => true,
-        "bool"   => true,
-        "float"  => true,
-        "string" => true,
-        "double" => true,
-    ];
+    /**
+     * @var string
+     */
+    private string $name;
 
     /**
      * @var bool
@@ -51,6 +44,11 @@ final class ReflectedProperty
      * @var bool
      */
     private bool $isTypeClassName;
+
+    /**
+     * @var bool
+     */
+    private bool $isTypeInterfaceName;
 
     /**
      * @var string[]
@@ -95,6 +93,7 @@ final class ReflectedProperty
     public function __construct(ReflectionProperty $property)
     {
         $this->property = $property;
+        $this->name = $property->getName();
         $this->hasType = $property->hasType();
         $this->hasDefaultValue = $property->isDefault();
         $this->isNullable = $this->resolveAllowsNull($property);
@@ -108,8 +107,12 @@ final class ReflectedProperty
         }
 
         $this->isTypeClassName = false;
+        $this->isTypeInterfaceName = false;
+
         if ($this->type != null && class_exists($this->type)) {
             $this->isTypeClassName = true;
+        } else if ($this->type != null && interface_exists($this->type)) {
+            $this->isTypeInterfaceName = true;
         }
 
         $this->resolveDefaultValue($property);
@@ -118,9 +121,15 @@ final class ReflectedProperty
     }
 
     /**
-     * Is property has any type
-     *
-     * @return bool
+     * @inheritDoc
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @inheritDoc
      */
     public function hasType(): bool
     {
@@ -128,9 +137,7 @@ final class ReflectedProperty
     }
 
     /**
-     * Returns first type of array (if declared a union type)
-     *
-     * @return string|null
+     * @inheritDoc
      */
     public function getType(): ?string
     {
@@ -138,13 +145,23 @@ final class ReflectedProperty
     }
 
     /**
-     * Is type classname
+     * Is type class name
      *
      * @return bool
      */
-    public function isTypeClassName(): bool
+    public function IsTypeClassName(): bool
     {
         return $this->isTypeClassName;
+    }
+
+    /**
+     * Is type interface name
+     *
+     * @return bool
+     */
+    public function IsTypeInterfaceName(): bool
+    {
+        return $this->isTypeInterfaceName;
     }
 
     /**
@@ -204,7 +221,7 @@ final class ReflectedProperty
      *
      * @return bool
      */
-    public function isHasAttributes(): bool
+    public function IsHasAttributes(): bool
     {
         return $this->isHasAttributes;
     }
@@ -287,8 +304,15 @@ final class ReflectedProperty
     private function resolveDefaultValue(ReflectionProperty $property)
     {
         $this->defaultValue = $property->getDefaultValue();
-        if ($this->defaultValue === null && $this->isNullable === false && isset(self::SCALAR_TYPES[$this->type])) {
+
+        if ($this->isNullable === true) {
+            return;
+        }
+
+        if ($this->defaultValue === null && isset(self::SCALAR_TYPES[$this->type])) {
             settype($this->defaultValue, $this->type);
+        } elseif ($this->type === 'array') {
+            $this->defaultValue = [];
         }
     }
 

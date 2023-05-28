@@ -2,28 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Ser\DTORequestBundle;
+namespace Ser\DtoRequestBundle;
 
 use ReflectionException;
-use Ser\DTORequestBundle\Attributes\MapTo;
-use Ser\DTORequestBundle\Attributes\MapToArrayOf;
-use Ser\DTORequestBundle\Exceptions\NullablePropertyException;
-use Ser\DTORequestBundle\Exceptions\RequiredPropertyException;
-use Ser\DTORequestBundle\Reflection\ReflectedClass;
-use Ser\DTORequestBundle\Reflection\ReflectedProperty;
+use Ser\DtoRequestBundle\Attributes\MapTo;
+use Ser\DtoRequestBundle\Attributes\MapToArrayOf;
+use Ser\DtoRequestBundle\Reflection\PropertyInterface;
+use Ser\DtoRequestBundle\Reflection\ReflectedClass;
+use Ser\DtoRequestBundle\Reflection\ReflectedParameter;
+use Ser\DtoRequestBundle\Reflection\ReflectedProperty;
 
-/**
- * Data transfer object factory
- */
 class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
 {
-    /**
-     * @inheritDoc
-     */
-    public function create(array $data, string $className): object
+    public function create(mixed $data, string $targetType): object
     {
         $existsKeys = array_flip(array_keys($data));
-        $cachedDto = $this->getCachedDto($className);
+        $cachedDto = $this->getCachedDto($targetType);
 
         $parameters = $cachedDto->getParameters();
         $properties = $cachedDto->getProperties();
@@ -35,76 +29,50 @@ class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
                 continue;
             }
 
-            $type = $property->getType();
-            $isMixed = $property->isMixed();
-            $value = $data[$field];
-
-            if (is_scalar($value) && (isset(ReflectedProperty::SCALAR_TYPES[$type]) || $isMixed)) {
+            // if field in properties and parameters ignore
+            if ($cachedDto->hasParameter($field)) {
                 continue;
             }
 
-            $isValueArray = is_array($value);
-
-            if ($property->isHasAttributes()) {
-                foreach ($property->getAttributes() as $mapTo => $attribute) {
-//                    if (!property_exists($attribute, 'className'))
-//                        continue;
-
-                    $targetType = $attribute->className;
-
-                    if (!in_array($mapTo, ReflectedProperty::SUPPORTS_ATTRIBUTES)) {
-                        continue;
-                    }
-
-                    switch ($mapTo) {
-                        case MapToArrayOf::class:
-                            foreach ($value as $key => $val) {
-                                if (!is_array($val)) {
-                                    $data[$field][$key] = new $targetType($val);
-                                } else {
-                                    $data[$field][$key] = $this->create($val, $targetType);
-                                }
-                            }
-                            break;
-                        case MapTo::class:
-                            if (!$isValueArray) {
-                                $data[$field] = new $targetType($value);
-                            } else {
-                                $data[$field] = $this->create($value, $targetType);
-                            }
-                            break;
-                    }
-                }
-            }
-
-            if ($property->isTypeClassName() === true) {
-                if ($value === null) {
-                    $data[$field] = null;
-
-                    continue;
-                }
-
-                if (!$isValueArray) {
-                    $data[$field] = new $type($value);
-                } else {
-                    $data[$field] = $this->create($value, $type);
-                }
-            }
+            $this->castPropertyToData($property, $data, $field);
         }
 
-        $constructorKeys = [];
+        foreach ($parameters as $field => $parameter) {
+            if (!isset($existsKeys[$field])) {
+                continue;
+            }
+
+            $this->castPropertyToData($parameter, $data, $field);
+        }
 
         if (!empty($parameters)) {
-            foreach ($parameters as $field => $property) {
-                if (!isset($data[$field])) {
-                    throw new RequiredPropertyException($field);
-                }
+            foreach ($parameters as $field => $parameter) {
                 $constructorKeys[$field] = true;
-                $constructorArguments[] = $data[$field];
+
+                $value = $data[$field] ?: $parameter->getDefaultValue();
+
+                // if type is classname and value is null
+                if (
+                    $parameter->isTypeClassName() &&
+                    !$parameter->isNullable()
+                    && $value === null
+                ) {
+                    $value = $this->create([], $parameter->getType());
+                }
+
+                if (
+                    $parameter->IsHasAttributes() &&
+                    !$parameter->isNullable() &&
+                    $value === null
+                ) {
+                    $value = $this->getDefaultValueFromMappers($parameter);
+                }
+
+                $constructorArguments[] = $value;
             }
         }
 
-        $object = new $className(...$constructorArguments);
+        $object = new $targetType(...$constructorArguments);
 
         if (!empty($properties)) {
             foreach ($properties as $field => $property) {
@@ -112,35 +80,117 @@ class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
                     continue;
                 }
 
-                $value = isset($existsKeys[$field]) === true ? $data[$field] : $property->getDefaultValue();
+                $value = $data[$field] ?: $property->getDefaultValue();
 
-                if (!$property->isNullable() && $value === null) {
-                    throw new NullablePropertyException($field, $property->getType());
+                // if type is classname and value is null
+                if (
+                    $property->IsTypeClassName() &&
+                    !$property->isNullable()
+                    && $value === null
+                ) {
+                    $value = $this->create([], $property->getType());
                 }
 
-                if ($property->isReadOnly()) {
-                    $property->setValue($object, $value);
-                } else {
-                    $object->{$field} = $value;
+                if (
+                    $property->IsHasAttributes() &&
+                    !$property->isNullable() &&
+                    $value === null
+                ) {
+                    $value = $this->getDefaultValueFromMappers($property);
                 }
+
+                $this->setObjectValue($object, $property, $value);
             }
         }
 
         return $object;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function supports(string $className): bool
+    private function getDefaultValueFromMappers(PropertyInterface $property): mixed
     {
-        $classVars = get_class_vars($className);
+        foreach ($property->getAttributes() as $mapTo => $attribute) {
+            $targetType = $attribute->className;
 
-        if (count($classVars) === 0) {
-            return false;
+            if (!in_array($mapTo, PropertyInterface::SUPPORTS_ATTRIBUTES)) {
+                continue;
+            }
+
+            switch ($mapTo) {
+                case MapToArrayOf::class:
+                    return [];
+                case MapTo::class:
+                    return $this->create([], $targetType);
+            }
         }
 
-        return true;
+        return null;
+    }
+
+    private function castPropertyToData(
+        ReflectedProperty|ReflectedParameter $property,
+        array &$data,
+        string $field
+    ) {
+        $type = $property->getType();
+        $isMixed = $property->isMixed();
+        $value = $data[$field];
+
+        if (is_scalar($value) && (isset(ReflectedProperty::SCALAR_TYPES[$type]) || $isMixed)) {
+            return;
+        }
+
+        $isValueArray = is_array($value);
+
+        if ($property->IsHasAttributes()) {
+            foreach ($property->getAttributes() as $mapTo => $attribute) {
+                $targetType = $attribute->className;
+
+                if (!in_array($mapTo, PropertyInterface::SUPPORTS_ATTRIBUTES)) {
+                    continue;
+                }
+
+                switch ($mapTo) {
+                    case MapToArrayOf::class:
+                        foreach ($value as $key => $val) {
+                            if (!is_array($val)) {
+                                $data[$field][$key] = new $targetType($val);
+                            } else {
+                                $data[$field][$key] = $this->create($val, $targetType);
+                            }
+                        }
+                        break;
+                    case MapTo::class:
+                        if (!$isValueArray) {
+                            $data[$field] = new $targetType($value);
+                        } else {
+                            $data[$field] = $this->create($value, $targetType);
+                        }
+                        break;
+                }
+            }
+        }
+
+        if ($property->IsTypeClassName() === true) {
+            if ($value === null) {
+                return;
+            }
+
+            if (!$isValueArray) {
+                $data[$field] = new $type($value);
+            } else {
+                $data[$field] = $this->create($value, $type);
+            }
+        }
+    }
+
+    private function setObjectValue(object &$object, ReflectedProperty|ReflectedParameter $property, mixed $value)
+    {
+        // if property is readonly, set property from reflection
+        if ($property->isReadOnly()) {
+            $property->setValue($object, $value);
+        } else {
+            $object->{$property->getName()} = $value;
+        }
     }
 
     /**
@@ -152,7 +202,7 @@ class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
      */
     private function getCachedDto(string $className): ReflectedClass
     {
-        return DTOCache::resolve($className, function (string $className) {
+        return DtoCache::resolve($className, function (string $className) {
             return new ReflectedClass($className);
         });
     }

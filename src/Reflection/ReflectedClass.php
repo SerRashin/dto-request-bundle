@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ser\DTORequestBundle\Reflection;
+namespace Ser\DtoRequestBundle\Reflection;
 
 use ReflectionClass;
 use ReflectionException;
@@ -26,12 +26,12 @@ final class ReflectedClass
     /**
      * @var string[]
      */
-    private array $parametersValues = [];
+    private array $parametersFields = [];
 
     /**
      * @var string[]
      */
-    private array $propertiesValues = [];
+    private array $propertiesFields = [];
 
     /**
      * Ctor.
@@ -56,9 +56,7 @@ final class ReflectedClass
             $this->properties[$field] = $refProperty;
 
             if ($refProperty->isNullable()) {
-                $this->propertiesValues[$field] = null;
-            } else {
-                $this->propertiesValues[$field] = filter_var($field);
+                $this->propertiesFields[$field] = null;
             }
         }
 
@@ -69,7 +67,7 @@ final class ReflectedClass
                 $field = $parameter->getName();
 
                 $this->parameters[$field] = new ReflectedParameter($parameter);
-                $this->parametersValues[$field] = null;
+                $this->parametersFields[$field] = null;
             }
         }
     }
@@ -151,18 +149,22 @@ final class ReflectedClass
     }
 
     /**
-     * @return string[]
+     * Check is class has parameter
+     *
+     * @return bool
      */
-    public function getParametersValues(): array
+    public function hasParameter(string $parameterName): bool
     {
-        return $this->parametersValues;
+        return array_key_exists($parameterName, $this->parametersFields);
     }
 
     /**
-     * @return string[]
+     * Check is class has property
+     *
+     * @return bool
      */
-    public function getPropertiesValues(): array
+    public function hasProperty(string $parameterName): bool
     {
-        return $this->propertiesValues;
+        return array_key_exists($parameterName, $this->propertiesFields);
     }
 }
