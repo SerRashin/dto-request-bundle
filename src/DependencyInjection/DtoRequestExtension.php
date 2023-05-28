@@ -13,11 +13,8 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class DtoRequestExtension extends ConfigurableExtension
 {
-    public function loadInternal(array $configs, ContainerBuilder $container): void
+    public function loadInternal(array $mergedConfig, ContainerBuilder $container): void
     {
-        $configuration = new Configuration();
-        $config = $this->processConfiguration($configuration, $configs);
-
         $container->register(DataTransferObjectFactory::class)
             ->setPublic(false)
         ;
@@ -30,7 +27,7 @@ class DtoRequestExtension extends ConfigurableExtension
         $container->register(RequestToDtoObjectResolver::class)
             ->setArguments([
                 '$dataTransferObjectFactory' =>  new Reference(DataTransferObjectFactoryInterface::class),
-                '$autowire' => $config['autowire'],
+                '$autowire' => $mergedConfig['autowire'],
             ])
             ->addTag('controller.argument_value_resolver', ['priority' => 40])
             ->setPublic(false)
