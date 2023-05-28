@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Ser\DTORequestBundle;
+namespace Ser\DtoRequestBundle;
 
 use Closure;
-use Ser\DTORequestBundle\Reflection\ReflectedClass;
+use Ser\DtoRequestBundle\Reflection\ReflectedClass;
 
-class DTOCache
+class DtoCache
 {
     private static array $cache = [];
 

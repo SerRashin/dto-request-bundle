@@ -60,7 +60,7 @@ declare(strict_types=1);
 
 namespace App\Dto;
 
-use Ser\DTORequestBundle\Attributes\MapToArrayOf;
+use Ser\DtoRequestBundle\Attributes\MapToArrayOf;
 
 class Address
 {
@@ -92,7 +92,7 @@ declare(strict_types=1);
 
 namespace App\Dto;
 
-use Ser\DTORequestBundle\Attributes\MapTo;
+use Ser\DtoRequestBundle\Attributes\MapTo;
 use DateTimeInterface;
 
 class AddressInterface {}
@@ -270,3 +270,5 @@ class UserData
     public ?Address $address;
 }
 ```
+
+TODO: add validator after build object
