@@ -49,7 +49,7 @@ class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
             foreach ($parameters as $field => $parameter) {
                 $constructorKeys[$field] = true;
 
-                $value = $data[$field] ?: $parameter->getDefaultValue();
+                $value = $data[$field] ?? $parameter->getDefaultValue();
 
                 // if type is classname and value is null
                 if (
@@ -80,7 +80,7 @@ class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
                     continue;
                 }
 
-                $value = $data[$field] ?: $property->getDefaultValue();
+                $value = $data[$field] ?? $property->getDefaultValue();
 
                 // if type is classname and value is null
                 if (

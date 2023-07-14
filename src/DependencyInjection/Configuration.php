@@ -21,7 +21,7 @@ class Configuration implements ConfigurationInterface
             ->addDefaultsIfNotSet()
                 ->children()
                     ->booleanNode('autowire')
-                        ->defaultTrue()
+                        ->defaultFalse()
                     ->end()
                 ->end()
         ;

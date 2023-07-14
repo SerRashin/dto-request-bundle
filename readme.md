@@ -272,3 +272,7 @@ class UserData
 ```
 
 TODO: add validator after build object
+TODO:
+add casting from string to int and other casters
+
+check line 68

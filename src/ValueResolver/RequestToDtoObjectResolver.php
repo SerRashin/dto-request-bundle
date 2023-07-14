@@ -48,7 +48,6 @@ class RequestToDtoObjectResolver implements ValueResolverInterface
     public function resolve(Request $request, ArgumentMetadata $argument): array
     {
         $argumentType = $argument->getType();
-
         $isSupports = $this->checkIsSupports($argument);
 
         if (!$isSupports) {
@@ -59,14 +58,9 @@ class RequestToDtoObjectResolver implements ValueResolverInterface
             return [];
         }
 
-        if ($request->getContent() === '') {
-            return [];
-        }
-
-        $requestData = $request->toArray();
-
-        if (count($requestData) === 0) {
-            return [];
+        $requestData = [];
+        if ($request->getContent() !== '') {
+            $requestData = $request->toArray();
         }
 
         try {
