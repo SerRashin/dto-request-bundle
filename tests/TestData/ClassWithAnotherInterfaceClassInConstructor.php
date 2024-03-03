@@ -15,6 +15,5 @@ class ClassWithAnotherInterfaceClassInConstructor
         #[MapTo(ClassWithInterface::class)]
         public SomeClassInterface $someClassProperty,
     ) {
-
     }
 }

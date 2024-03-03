@@ -6,5 +6,4 @@ namespace Ser\DtoRequestBundle\TestData;
 
 class EmptyClass
 {
-
 }

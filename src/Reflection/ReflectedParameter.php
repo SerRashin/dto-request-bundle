@@ -20,7 +20,7 @@ final class ReflectedParameter implements PropertyInterface
     /**
      * @var bool
      */
-    private bool $isHasAttributes = false;
+    private bool $hasAttributes = false;
 
     /**
      * @var object[]
@@ -152,9 +152,9 @@ final class ReflectedParameter implements PropertyInterface
      *
      * @return bool
      */
-    public function isHasAttributes(): bool
+    public function hasAttributes(): bool
     {
-        return $this->isHasAttributes;
+        return $this->hasAttributes;
     }
 
     /**
@@ -241,7 +241,7 @@ final class ReflectedParameter implements PropertyInterface
 
         foreach ($refAttributes as $attribute) {
             $name = $attribute->getName();
-            $this->isHasAttributes = true;
+            $this->hasAttributes = true;
             $this->attributes[$name] = $attribute->newInstance();
         }
     }
