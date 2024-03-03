@@ -23,7 +23,7 @@ final class ReflectedProperty implements PropertyInterface
     /**
      * @var bool
      */
-    private bool $isHasAttributes = false;
+    private bool $hasAttributes = false;
 
     /**
      * @var object[]
@@ -111,7 +111,7 @@ final class ReflectedProperty implements PropertyInterface
 
         if ($this->type != null && class_exists($this->type)) {
             $this->isTypeClassName = true;
-        } else if ($this->type != null && interface_exists($this->type)) {
+        } elseif ($this->type != null && interface_exists($this->type)) {
             $this->isTypeInterfaceName = true;
         }
 
@@ -149,7 +149,7 @@ final class ReflectedProperty implements PropertyInterface
      *
      * @return bool
      */
-    public function IsTypeClassName(): bool
+    public function isTypeClassName(): bool
     {
         return $this->isTypeClassName;
     }
@@ -159,7 +159,7 @@ final class ReflectedProperty implements PropertyInterface
      *
      * @return bool
      */
-    public function IsTypeInterfaceName(): bool
+    public function isTypeInterfaceName(): bool
     {
         return $this->isTypeInterfaceName;
     }
@@ -221,9 +221,9 @@ final class ReflectedProperty implements PropertyInterface
      *
      * @return bool
      */
-    public function IsHasAttributes(): bool
+    public function hasAttributes(): bool
     {
-        return $this->isHasAttributes;
+        return $this->hasAttributes;
     }
 
     /**
@@ -339,7 +339,7 @@ final class ReflectedProperty implements PropertyInterface
 
         foreach ($refAttributes as $attribute) {
             $name = $attribute->getName();
-            $this->isHasAttributes = true;
+            $this->hasAttributes = true;
             $this->attributes[$name] = $attribute->newInstance();
         }
     }

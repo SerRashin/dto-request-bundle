@@ -10,8 +10,7 @@ use Ser\DtoRequestBundle\Enum\Source;
 #[Attribute(Attribute::TARGET_PARAMETER)]
 class Dto
 {
-    public function __construct(
-    )
+    public function __construct()
     {
     }
 }

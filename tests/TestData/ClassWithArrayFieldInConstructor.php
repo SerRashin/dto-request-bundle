@@ -9,6 +9,5 @@ class ClassWithArrayFieldInConstructor
     public function __construct(
         public array $arrayField,
     ) {
-
     }
 }

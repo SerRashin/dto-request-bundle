@@ -54,14 +54,14 @@ class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
                 // if type is classname and value is null
                 if (
                     $parameter->isTypeClassName() &&
-                    !$parameter->isNullable()
-                    && $value === null
+                    !$parameter->isNullable() &&
+                    $value === null
                 ) {
                     $value = $this->create([], $parameter->getType());
                 }
 
                 if (
-                    $parameter->IsHasAttributes() &&
+                    $parameter->hasAttributes() &&
                     !$parameter->isNullable() &&
                     $value === null
                 ) {
@@ -84,15 +84,15 @@ class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
 
                 // if type is classname and value is null
                 if (
-                    $property->IsTypeClassName() &&
-                    !$property->isNullable()
-                    && $value === null
+                    $property->isTypeClassName() &&
+                    !$property->isNullable() &&
+                    $value === null
                 ) {
                     $value = $this->create([], $property->getType());
                 }
 
                 if (
-                    $property->IsHasAttributes() &&
+                    $property->hasAttributes() &&
                     !$property->isNullable() &&
                     $value === null
                 ) {
@@ -141,7 +141,7 @@ class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
 
         $isValueArray = is_array($value);
 
-        if ($property->IsHasAttributes()) {
+        if ($property->hasAttributes()) {
             foreach ($property->getAttributes() as $mapTo => $attribute) {
                 $targetType = $attribute->className;
 
@@ -170,7 +170,7 @@ class DataTransferObjectFactory implements DataTransferObjectFactoryInterface
             }
         }
 
-        if ($property->IsTypeClassName() === true) {
+        if ($property->isTypeClassName() === true) {
             if ($value === null) {
                 return;
             }
