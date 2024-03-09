@@ -7,7 +7,12 @@
   "authors": [
     {
       "name": "Sergey Rashin",
-      "email": "ser@rashin.me"
+      "email": "ser@rashin.me",
+      "homepage": "https://rashin.me/"
+    },
+    {
+      "name": "Temirkhan",
+      "homepage": "https://temirkhan.nasukhov.me"
     }
   ],
   "autoload": {
